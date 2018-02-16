@@ -1,4 +1,5 @@
 const path = require('path');
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
   entry: './src/index.js',
@@ -21,8 +22,11 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'picstore.js',
+    filename: 'picstore.min.js',
     library: 'picostore',
     libraryTarget: 'umd',
   },
+  plugins: [
+    new UglifyJSPlugin(),
+  ],
 };
