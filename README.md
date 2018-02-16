@@ -2,7 +2,7 @@
 
 # PicoStore
 
-PicoStore is a tiny and agnostic state management container for JavaScript apps.
+PicoStore is a tiny and fast state management container for JavaScript apps.
 
 Features:
 - **tiny** (< 1.5KB minified, < 1KB gZipped)
