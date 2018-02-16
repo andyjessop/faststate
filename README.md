@@ -5,11 +5,11 @@
 PicoStore is a tiny and agnostic state management container for JavaScript apps.
 
 Features:
-- tiny (< 1.5KB minified, < 1KB gZipped)
-- global atomic state object
-- namespaced actions: only update small segments of the global state in any single operation
-- stores are modular by nature and can be infinitely nested to provide encapsulation yet still reflect the structure of your data
-- store updates are subscribable by path, only responding to changes in those specific paths in the state
+- **tiny** (< 1.5KB minified, < 1KB gZipped)
+- **global atomic state object**
+- **namespaced actions**: only update small segments of the global state in any single operation
+- **stores are modular** by nature and can be infinitely nested to provide encapsulation yet still reflect the structure of your data
+- **subscribe** to state changes by path, only responding to changes in those specific paths in the state
 
 ### Installation
 ```
@@ -137,7 +137,7 @@ store.subscribe('counter.count', handler);
 store.unsubscribe('counter.count', handler);
 ```
 ### Async
-Actions don't have to return a segment of the state, they can be used to fire asynchronous actions, or do anything else you want. If you late want to update the state asynchronously, you must call another action:
+Actions don't have to return a segment of the state, they can be used to fire asynchronous actions, or do anything else you want. If you later want to update the state synchronously, you must call another action:
 
 ```
 const config = {
@@ -150,6 +150,7 @@ const config = {
 }
 
 const store = createStore(config);
+
 store.actions.myAsyncAction();
 console.log(1);
 
