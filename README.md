@@ -1,3 +1,5 @@
+**Warning: This is very much WIP and not production ready**
+
 # PicoStore
 
 PicoStore is a tiny and agnostic state management container for JavaScript apps.
