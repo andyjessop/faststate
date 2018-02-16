@@ -6,6 +6,7 @@ PicoStore is a tiny and agnostic state management container for JavaScript apps.
 
 Features:
 - **tiny** (< 1.5KB minified, < 1KB gZipped)
+- **very fast and low memory**: does the least amount of work to update state and respond to changes
 - **global atomic state object**
 - **namespaced actions**: only update small segments of the global state in any single operation
 - **stores are modular** by nature and can be infinitely nested to provide encapsulation yet still reflect the structure of your data
