@@ -8,6 +8,7 @@ Features:
 - **global atomic state object**
 - **namespaced actions**: only update small segments of the global state in any single operation
 - **stores are modular** by nature and can be infinitely nested to provide encapsulation yet still reflect the structure of your data
+- **computed properties**
 
 ### Installation
 ```
@@ -115,4 +116,27 @@ console.log(1);
 // outputs:
 // 1
 // 2
+```
+
+### Computed Properties
+Add computed properties by specifying dependencies up front. Computed functions are memoized so they are exceedingly fast.
+
+```
+const config = {
+  actions: {...},
+  state: {
+    one: 1,
+    two: 2
+  },
+  computedProperties: {
+    added: {
+      deps: state => [state.one, state.two],
+      getter: state => state.one + state.two
+    }
+  }
+}
+
+const store = createStore(config);
+
+console.log(store.state.added); // 3
 ```
