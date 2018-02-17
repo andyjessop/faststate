@@ -1,3 +1,1 @@
-export default (path, source) => {
-  path.reduce((acc, cur) => acc[cur], source);
-};
+export default (path, source) => path.reduce((acc, cur) => acc[cur], source);

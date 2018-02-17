@@ -1,16 +1,13 @@
-**Warning: This is very much WIP and not production ready**
-
 # PicoStore
 
 PicoStore is a tiny and fast state management container for JavaScript apps.
 
 Features:
-- **tiny** (< 1.5KB minified, < 1KB gZipped)
+- **tiny** (~500B minified)
 - **very fast and low memory**: does the least amount of work to update state and respond to changes
 - **global atomic state object**
 - **namespaced actions**: only update small segments of the global state in any single operation
 - **stores are modular** by nature and can be infinitely nested to provide encapsulation yet still reflect the structure of your data
-- **subscribe** to state changes by path, only responding to changes in those specific paths in the state
 
 ### Installation
 ```
@@ -97,46 +94,6 @@ console.log(store.module1.state.isTrue); // true
 
 ```
 
-### Subscriptions
-Subscriptions can either be included in the config:
-```
-const config = {
-  actions: { // actions from counter example above },
-  state: { // state from counter example above },
-  subscriptions: [
-    'counter.count': val => console.log(val)
-  ]
-};
-
-const store = createStore(config);
-
-store.actions.counter.up(1);
-// console output (synchronous): 1
-
-```
-
-...or they can be added dynamically using `subscribe()`:
-```
-const config = {
-  actions: { // actions from counter example above },
-  state: { // state from counter example above }
-};
-
-const store = createStore(config);
-store.subscribe('counter.count', val => console.log(val);
-
-store.actions.counter.up(1);
-// console output: 1
-```
-
-Cleaning up when you're finished:
-```
-const store = createStore(// config from above);
-const handler = val => console.log(val);
-store.subscribe('counter.count', handler);
-
-store.unsubscribe('counter.count', handler);
-```
 ### Async
 Actions don't have to return a segment of the state, they can be used to fire asynchronous actions, or do anything else you want. If you later want to update the state synchronously, you must call another action:
 
