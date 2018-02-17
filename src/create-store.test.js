@@ -1,6 +1,6 @@
 import createStore from './create-store';
 
-const mockConfig = {
+const getMockConfig = () => ({
   actions: {
     alertInitialized: (value, actions) => actions.setAlert('Initialized'),
     setAlert: value => () => ({ alert: value }),
@@ -13,13 +13,20 @@ const mockConfig = {
   state: {
     alert: '',
     initialized: false,
+    num: 0,
     user: {
       username: '',
     },
   },
-};
+});
+
+let mockConfig = getMockConfig;
 
 describe('createStore', () => {
+  beforeEach(() => {
+    mockConfig = getMockConfig();
+  });
+
   test('should wire action to state', () => {
     const store = createStore(mockConfig);
 
@@ -69,5 +76,24 @@ describe('createStore', () => {
     store.counter.actions.increment(1);
 
     expect(store.counter.state.count).toEqual(1);
+  });
+
+  test('should create a computed property', () => {
+    const computedProperties = {
+      initNum: {
+        deps: state => [
+          state.initialized,
+          state.num,
+        ],
+        getter: state => (`${state.initialized}${state.num}`),
+      },
+    };
+
+    const store = createStore({
+      ...mockConfig,
+      computedProperties,
+    });
+
+    expect(store.state.initNum).toEqual('false0');
   });
 });
