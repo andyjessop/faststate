@@ -17,7 +17,6 @@ module.exports = {
           failOnWarning: false,
         },
       },
-      { test: /\.js$/, exclude: /node_modules/, loader: 'babel-loader' },
     ],
   },
   output: {
