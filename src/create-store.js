@@ -1,6 +1,6 @@
-import get from './utils/get';
-import set from './utils/set';
 import createComputedProperty from './create-computed-property';
+import registerModule from './register-module';
+import wireActions from './wire-actions';
 
 export default createStore;
 
@@ -31,38 +31,4 @@ function createStore({
   return Object.assign(store, {
     registerModule: module => registerModule(store, module),
   });
-}
-
-function registerModule(store, moduleName, module) {
-  store[moduleName] = createStore(module); // eslint-disable-line no-param-reassign
-}
-
-function wireActions(path, state, actions, rootActions) {
-  Object
-    .keys(actions)
-    .forEach((key) => {
-      if (typeof actions[key] === 'function') {
-        const action = actions[key];
-        const nestedState = get(path, state);
-
-        actions[key] = (val) => { // eslint-disable-line
-          const data = action(val)({
-            state: nestedState,
-            actions,
-            rootState: state,
-            rootActions,
-          });
-
-          if (data && !data.then) {
-            Object.assign(
-              nestedState,
-              data,
-            );
-          }
-        };
-      } else {
-        const nextPath = path.concat(key);
-        wireActions(nextPath, state, get(nextPath, actions), rootActions);
-      }
-    });
 }
