@@ -130,7 +130,7 @@ const config = {
     one: 1,
     two: 2
   },
-  computedProperties: {
+  computed: {
     added: {
       deps: state => [state.one, state.two],
       getter: state => state.one + state.two
@@ -144,7 +144,7 @@ console.log(store.state.added); // 3
 ```
 
 ### Subscriptions
-Subscribe to nested properties by specifying their paths in dot notation:
+Subscribe to nested properties by specifying their paths in dot notation. Note you cannot currently subscribe to computed properties, but that will come in a later release.
 
 ```
 let output;

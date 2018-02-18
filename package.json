@@ -1,6 +1,6 @@
 {
   "name": "picostore",
-  "version": "0.2.2",
+  "version": "0.3.2",
   "description": "A tiny and fast state management container",
   "main": "src/index.js",
   "scripts": {
