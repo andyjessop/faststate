@@ -5,11 +5,12 @@ PicoStore is a tiny and exceptionally fast state management container for JavaSc
 Features:
 - **tiny** (<1KB minified)
 - **no dependencies**
-- **fast and low memory**: does the least amount of work to update state and respond to changes
+- **fast and low memory**: does a small amount of work to update state and respond to changes
 - **single atomic state object**
 - **namespaced actions**: only update small segments of the global state in any single operation
 - **modular**: stores are fractal by nature and can be infinitely nested to provide encapsulation yet still reflect the structure of your data
-- **computed properties**
+- [**computed properties**](https://github.com/andyjessop/picostore#computed-properties)
+- [**subscribe**](https://github.com/andyjessop/picostore#subscriptions) to changes in specific properties in the state object
 
 ### Installation
 ```
@@ -140,4 +141,26 @@ const config = {
 const store = createStore(config);
 
 console.log(store.state.added); // 3
+```
+
+### Subscriptions
+Subscribe to nested properties by specifying their paths in dot notation:
+
+```
+let output;
+
+const subscription = {
+  'user.username': (newVal) => {
+    output = newVal;
+  },
+};
+
+const store = createStore({
+  ...mockConfig,
+  subscriptions: { ...subscription },
+});
+
+store.actions.user.setUsername('alice');
+
+console.log(output); // 'alice
 ```
