@@ -83,7 +83,7 @@ describe('createStore', () => {
   });
 
   test('should create a computed property', () => {
-    const computedProperties = {
+    const computed = {
       initNum: {
         deps: state => [
           state.initialized,
@@ -95,9 +95,28 @@ describe('createStore', () => {
 
     const store = createStore({
       ...mockConfig,
-      computedProperties,
+      computed,
     });
 
     expect(store.state.initNum).toEqual('false0');
+  });
+
+  test('should create a subscription', () => {
+    let output;
+
+    const subscription = {
+      'user.username': (newVal) => {
+        output = newVal;
+      },
+    };
+
+    const store = createStore({
+      ...mockConfig,
+      subscriptions: { ...subscription },
+    });
+
+    store.actions.user.setUsername('alice');
+
+    expect(output).toEqual('alice');
   });
 });
