@@ -1,4 +1,5 @@
 import get from './utils/get';
+import set from './utils/set';
 import createComputedProperty from './create-computed-property';
 
 export default createStore;
@@ -42,17 +43,20 @@ function wireActions(path, state, actions, rootActions) {
     .forEach((key) => {
       if (typeof actions[key] === 'function') {
         const action = actions[key];
+        const nestedState = get(path, state);
+
         actions[key] = (val) => { // eslint-disable-line
-          const nextFn = action(val, actions, rootActions);
+          const data = action(val)({
+            state: nestedState,
+            actions,
+            rootState: state,
+            rootActions,
+          });
 
-          // If we get a function back then it's a synchronous state
-          // update. So we call it and update the nested state.
-          if (typeof nextFn === 'function') {
-            const nestedState = get(path, state);
-
+          if (data && !data.then) {
             Object.assign(
               nestedState,
-              nextFn(nestedState),
+              data,
             );
           }
         };

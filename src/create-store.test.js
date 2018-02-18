@@ -2,12 +2,15 @@ import createStore from './create-store';
 
 const getMockConfig = () => ({
   actions: {
-    alertInitialized: (value, actions) => actions.setAlert('Initialized'),
+    alertInitialized: () => ({ actions }) => new Promise((resolve) => {
+      actions.setAlert('Initialized');
+      resolve();
+    }).then(() => actions.setAlert('Initialized')),
     setAlert: value => () => ({ alert: value }),
     initialized: () => () => ({ initialized: true }),
     user: {
       setUsername: value => () => ({ username: value }),
-      alertLoggedOut: (obj, actions, rootActions) => { rootActions.setAlert('You have been logged out.'); },
+      alertLoggedOut: () => ({ rootActions }) => { rootActions.setAlert('You have been logged out.'); },
     },
   },
   state: {
@@ -62,12 +65,13 @@ describe('createStore', () => {
   test('should create module as namespaced sub-store', () => {
     const module = {
       actions: {
-        increment: value => state => ({ count: state.count + value }),
+        increment: value => ({ state }) => ({ count: state.count + value }),
       },
       state: {
         count: 0,
       },
     };
+
     const store = createStore({
       ...mockConfig,
       modules: { counter: module },
