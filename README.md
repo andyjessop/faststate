@@ -39,26 +39,6 @@ console.log(store.state.count); // 1
 
 ```
 
-### Modules
-
-Modules can also be added dynamically:
-```
-const module = {
-  actions: {
-    setTrue: () => state => ({ state.isTrue: true })
-  },
-  state: { ... }
-}
-
-const store = createStore();
-store.registerModule('myModule', module);
-
-store.actions.myModule.setTrue();
-
-console.log(store.state.myModule.isTrue); // true
-
-```
-
 ### Async
 Actions don't have to return a segment of the state, they can be used to fire asynchronous actions, or do anything else you want. If you later want to update the state synchronously, you must call another action:
 
@@ -66,11 +46,10 @@ Actions don't have to return a segment of the state, they can be used to fire as
 const config = {
   counter: {
     actions: {
-      getCount: params => ({ state, actions }) => http.get(params.getCountUrl)
-        .then((res) => {
-          console.log(res); // e.g. res = 2
-          actions.set(res));
-        }),
+      get: () => ({ actions }) => new Promise((resolve) => {
+        actions.set(1);
+        resolve();
+      }),
 
       set: value => state => ({ count: value });
     },
@@ -101,7 +80,7 @@ const config = {
       down: value => state => ({ count: state.count - value }),
     },
     computed: {
-      total: ('count', 'initial') => state => state.count + state.initial,
+      total: ['count', 'initial', (state) => state.count + state.initial],
     }
     state: {
       count: 0,
@@ -117,7 +96,7 @@ console.log(store.state.counter.total); // 6
 ```
 
 ### Subscriptions
-Subscribe to nested properties by specifying their paths in dot notation. Note you cannot currently subscribe to computed properties, but that will come in a later release.
+Subscribe to nested properties by specifying their paths in dot notation. You can also subscribe to computed properties.
 
 ```
 let count, total;
@@ -128,15 +107,15 @@ const config = {
       up: value => state => ({ count: state.count + value }),
     },
     computed: {
-      total: ('count', 'initial') => state => state.count + state.initial,
+      total: ['count', 'initial', (state) => state.count + state.initial],
     }
     state: {
       count: 0,
       initial: 5,
     },
     subscriptions: {
-      count: (oldVal, newVal) => ({ state, actions }) => { count = newVal; }
-      total: (oldVal, newVal) => ({ state, actions }) => { total = newVal; } // subscribe to computed properties too
+      count: (newVal) => { count = newVal; }
+      total: (newVal) => { total = newVal; } // subscribe to computed properties too
     }
   }
 };
@@ -146,30 +125,4 @@ const store = createStore(config);
 store.actions.counter.up(1);
 
 console.log(count, total); // 1, 6
-```
-
-Add subscriptions dynamically:
-```
-let count;
-
-const config = {
-  counter: {
-    actions: {
-      up: value => state => ({ count: state.count + value }),
-    },
-    state: {
-      count: 0,
-    }
-  }
-};
-
-const store = createStore(config);
-
-store.subscribe({
- 'count' => (oldVal, newVal) => { count = newVal; }
-});
-
-store.actions.counter.up(1);
-
-console.log(count); // 1
 ```
