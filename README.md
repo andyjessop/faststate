@@ -1,14 +1,13 @@
 # PicoStore
 
-PicoStore is a tiny and exceptionally fast state management container for JavaScript apps.
+PicoStore is a tiny and fast state management container for JavaScript apps.
 
 Features:
 - **tiny** (<1KB minified)
 - **no dependencies**
-- **fast and low memory**: does a small amount of work to update state and respond to changes
 - **single atomic state object**
-- **namespaced actions**: only update small segments of the global state in any single operation
-- **modular**: stores are fractal by nature and can be infinitely nested to provide encapsulation yet still reflect the structure of your data
+- **immutable but fast and low memory**: only updates small segments of the state
+- **modular**: all functionality added in modules to aid separation of concerns and portability
 - [**computed properties**](https://github.com/andyjessop/picostore#computed-properties)
 - [**subscribe**](https://github.com/andyjessop/picostore#subscriptions) to changes in specific properties in the state object
 
@@ -22,14 +21,12 @@ $ npm install picostore --save
 import createStore from 'picostore';
 
 const config = {
-  actions: {
-    counter: {
-      up: value => state => ({ count: state.count + value }), // nested to provide namespacing
+  counter: {
+    actions: {
+      up: value => state => ({ count: state.count + value }),
       down: value => state => ({ count: state.count - value })
-    }
-  },
-  state: {
-    counter: {
+    },
+    state: {
       count: 0
     }
   }
@@ -38,37 +35,11 @@ const config = {
 const store = createStore(config);
 
 store.actions.counter.up(1);
-
 console.log(store.state.count); // 1
 
 ```
 
 ### Modules
-```
-const module = {
-  actions: {
-    setTrue: () => state => ({ state.isTrue: true })
-  },
-  state: { ... }
-}
-
-const config = {
-  actions: {
-    init: value => state => ({ state.initialized: true })
-  },
-  state: {
-    initialized: true
-  },
-  modules: {
-    module1: module
-  }
-};
-
-const store = createStore(config);
-
-store.actions.init(); // store.state.initialized: true
-store.module1.actions.setTrue(); // store.module1.state.isTrue: true
-```
 
 Modules can also be added dynamically:
 ```
@@ -79,21 +50,12 @@ const module = {
   state: { ... }
 }
 
-const config = {
-  actions: {
-    init: value => state => ({ state.initialized: true })
-  },
-  state: {
-    initialized: true
-  }
-};
+const store = createStore();
+store.registerModule('myModule', module);
 
-const store = createStore(config);
-store.registerModule(module);
+store.actions.myModule.setTrue();
 
-store.module1.actions.setTrue();
-
-console.log(store.module1.state.isTrue); // true
+console.log(store.state.myModule.isTrue); // true
 
 ```
 
@@ -102,17 +64,25 @@ Actions don't have to return a segment of the state, they can be used to fire as
 
 ```
 const config = {
-  actions: {
-    myAsyncAction: params => (state, actions) => http.get(params.url)
-      .then(() => actions.syncUpdate(2)),
+  counter: {
+    actions: {
+      getCount: params => ({ state, actions }) => http.get(params.getCountUrl)
+        .then((res) => {
+          console.log(res); // e.g. res = 2
+          actions.set(res));
+        }),
 
-    syncUpdate: val => state => ({ updated: val });
+      set: value => state => ({ count: value });
+    },
+    state: {
+      count: 0;
+    }
   }
 }
 
 const store = createStore(config);
 
-store.actions.myAsyncAction();
+store.actions.getCount();
 console.log(1);
 
 // outputs:
@@ -125,42 +95,81 @@ Add computed properties by specifying dependencies up front. Computed functions 
 
 ```
 const config = {
-  actions: {...},
-  state: {
-    one: 1,
-    two: 2
-  },
-  computed: {
-    added: {
-      deps: state => [state.one, state.two],
-      getter: state => state.one + state.two
+  counter: {
+    actions: {
+      up: value => state => ({ count: state.count + value }),
+      down: value => state => ({ count: state.count - value }),
+    },
+    computed: {
+      total: ('count', 'initial') => state => state.count + state.initial,
+    }
+    state: {
+      count: 0,
+      initial: 5,
     }
   }
-}
+};
 
 const store = createStore(config);
+store.actions.counter.up(1)
 
-console.log(store.state.added); // 3
+console.log(store.state.counter.total); // 6
 ```
 
 ### Subscriptions
 Subscribe to nested properties by specifying their paths in dot notation. Note you cannot currently subscribe to computed properties, but that will come in a later release.
 
 ```
-let output;
+let count, total;
 
-const subscription = {
-  'user.username': (newVal) => {
-    output = newVal;
-  },
+const config = {
+  counter: {
+    actions: {
+      up: value => state => ({ count: state.count + value }),
+    },
+    computed: {
+      total: ('count', 'initial') => state => state.count + state.initial,
+    }
+    state: {
+      count: 0,
+      initial: 5,
+    },
+    subscriptions: {
+      count: (oldVal, newVal) => ({ state, actions }) => { count = newVal; }
+      total: (oldVal, newVal) => ({ state, actions }) => { total = newVal; } // subscribe to computed properties too
+    }
+  }
 };
 
-const store = createStore({
-  ...mockConfig,
-  subscriptions: { ...subscription },
+const store = createStore(config);
+
+store.actions.counter.up(1);
+
+console.log(count, total); // 1, 6
+```
+
+Add subscriptions dynamically:
+```
+let count;
+
+const config = {
+  counter: {
+    actions: {
+      up: value => state => ({ count: state.count + value }),
+    },
+    state: {
+      count: 0,
+    }
+  }
+};
+
+const store = createStore(config);
+
+store.subscribe({
+ 'count' => (oldVal, newVal) => { count = newVal; }
 });
 
-store.actions.user.setUsername('alice');
+store.actions.counter.up(1);
 
-console.log(output); // 'alice
+console.log(count); // 1
 ```

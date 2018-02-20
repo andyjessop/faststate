@@ -1,6 +1,6 @@
 import get from './get';
 
-const wireActions = (path, state, actions, rootActions = actions, subscriptions) => {
+const wireActions = (path, state, actions, subscriptions, computedDeps) => {
   Object
     .keys(actions)
     .forEach((key) => {
@@ -8,37 +8,48 @@ const wireActions = (path, state, actions, rootActions = actions, subscriptions)
         const action = actions[key];
         const localState = get(path, state);
 
-        actions[key] = (val) => { // eslint-disable-line
+        actions[key] = (val) => { // eslint-disable-line no-param-reassign
           const data = action(val)({
-            state: localState,
             actions,
-            rootState: state,
-            rootActions,
+            state: localState,
           });
 
-          if (data && !data.then) {
-            Object.assign(
-              localState,
-              data,
-            );
+          if (!data) return;
+          if (data.then) return data; // eslint-disable-line consistent-return
 
-            if (Object.keys(subscriptions || []).length > 0) {
-              Object.keys(data)
-                .map((dataKey) => {
-                  return {
-                    fn: subscriptions[[...path, dataKey].join('.')],
-                    value: data[dataKey],
-                  };
-                })
-                .forEach(({ fn, value }) => fn && fn(value));
-            }
+          Object.assign(localState, data);
+
+          const subscriptionsKeys = Object.keys(subscriptions || {});
+
+          if (subscriptions && subscriptionsKeys.length > 0) {
+            const computedKeys = Object.keys(computedDeps || {});
+            const dataKeys = Object.keys(data || {});
+
+            [
+              ...dataKeys,
+              ...computedKeys.filter(k => computedDeps[k].some(q => dataKeys.includes(q))),
+            ]
+              .filter((k) => {
+                return subscriptionsKeys.includes(k);
+              })
+              .map((subKey) => {
+                return {
+                  fn: subscriptions[[...path, subKey].join('.')],
+                  value: data[subKey] || state[subKey],
+                };
+              })
+              .forEach(({ fn, value }) => {
+                return fn && fn(value);
+              });
           }
         };
       } else {
         const nextPath = path.concat(key);
-        wireActions(nextPath, state, get(nextPath, actions), rootActions, subscriptions);
+        wireActions(nextPath, state, get(nextPath, actions), subscriptions, computedDeps);
       }
     });
+
+  return actions;
 };
 
 export default wireActions;

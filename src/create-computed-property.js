@@ -1,11 +1,15 @@
-export default (obj, prop, deps, rootDeps, getter) => {
+import get from './get';
+
+export default (obj, prop, deps, getter) => {
   const cache = {};
 
   Object.defineProperty(obj, prop, {
     configurable: true,
     enumerable: true,
     get: () => {
-      const argString = JSON.stringify({ ...deps, ...rootDeps });
+      const depObjects = deps.map(dep => get(dep.split('.'), obj));
+
+      const argString = JSON.stringify({ ...depObjects });
 
       if (cache[argString]) {
         return cache[argString];

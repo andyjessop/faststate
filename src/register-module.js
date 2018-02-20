@@ -1,5 +1,6 @@
-import createStore from './create-store';
+import wireActions from './wire-actions';
 
-export default (store, moduleName, module) => {
+export default (state, moduleName, module) => {
+  wireActions([], state, actions, actions, subscriptions);
   store[moduleName] = createStore(module); // eslint-disable-line no-param-reassign
 };
