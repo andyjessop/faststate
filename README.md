@@ -6,7 +6,6 @@ Features:
 - **tiny** (<1KB minified)
 - **no dependencies**
 - **single atomic state object**
-- **immutable but fast and low memory**: only updates small segments of the state
 - **modular**: all functionality added in modules to aid separation of concerns and portability
 - [**computed properties**](https://github.com/andyjessop/picostore#computed-properties)
 - [**subscribe**](https://github.com/andyjessop/picostore#subscriptions) to changes in specific properties in the state object

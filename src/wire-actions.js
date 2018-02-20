@@ -1,4 +1,4 @@
-import get from './get';
+import getState from './get-state';
 
 const wireActions = (path, state, actions, subscriptions, computedDeps) => {
   Object
@@ -6,7 +6,7 @@ const wireActions = (path, state, actions, subscriptions, computedDeps) => {
     .forEach((key) => {
       if (typeof actions[key] === 'function') {
         const action = actions[key];
-        const localState = get(path, state);
+        const localState = getState(path, state);
 
         actions[key] = (val) => { // eslint-disable-line no-param-reassign
           const data = action(val)({
@@ -29,23 +29,19 @@ const wireActions = (path, state, actions, subscriptions, computedDeps) => {
               ...dataKeys,
               ...computedKeys.filter(k => computedDeps[k].some(q => dataKeys.includes(q))),
             ]
-              .filter((k) => {
-                return subscriptionsKeys.includes(k);
-              })
-              .map((subKey) => {
-                return {
-                  fn: subscriptions[[...path, subKey].join('.')],
-                  value: data[subKey] || state[subKey],
-                };
-              })
-              .forEach(({ fn, value }) => {
-                return fn && fn(value);
+              .filter(k => subscriptionsKeys.includes(k))
+              .forEach((subKey) => {
+                const fn = subscriptions[[...path, subKey].join('.')];
+
+                if (fn) {
+                  fn(data[subKey] || state[subKey]);
+                }
               });
           }
         };
       } else {
         const nextPath = path.concat(key);
-        wireActions(nextPath, state, get(nextPath, actions), subscriptions, computedDeps);
+        wireActions(nextPath, state, getState(nextPath, actions), subscriptions, computedDeps);
       }
     });
 

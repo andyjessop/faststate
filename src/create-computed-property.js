@@ -1,4 +1,4 @@
-import get from './get';
+import getState from './get-state';
 
 export default (obj, prop, deps, getter) => {
   const cache = {};
@@ -7,7 +7,7 @@ export default (obj, prop, deps, getter) => {
     configurable: true,
     enumerable: true,
     get: () => {
-      const depObjects = deps.map(dep => get(dep.split('.'), obj));
+      const depObjects = deps.map(dep => getState(dep.split('.'), obj));
 
       const argString = JSON.stringify({ ...depObjects });
 
