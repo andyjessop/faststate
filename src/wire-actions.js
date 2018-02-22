@@ -15,6 +15,7 @@ const wireActions = (path, state, actions, subscriptions, computedDeps) => {
           });
 
           if (!data) return;
+
           if (data.then) return data; // eslint-disable-line consistent-return
 
           Object.assign(localState, data);

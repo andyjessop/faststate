@@ -2,6 +2,8 @@
 
 PicoStore is a small and fast state management container for JavaScript apps.
 
+**Note: this library is currently in alpha and therefore the API is subject to breaking changes.**
+
 Features:
 - **tiny** (<1KB minified)
 - **no dependencies**
