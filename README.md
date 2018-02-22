@@ -16,7 +16,7 @@ $ npm install picostore --save
 ```
 
 ### Minimal example
-```
+```js
 import createStore from 'picostore';
 
 const config = {
@@ -41,7 +41,7 @@ console.log(store.state.count); // 1
 ### Async
 Actions don't have to return a segment of the state, they can be used to fire asynchronous actions, or do anything else you want. If you later want to update the state synchronously, you must call another action:
 
-```
+```js
 const config = {
   counter: {
     actions: {
@@ -71,7 +71,7 @@ console.log(1);
 ### Computed Properties
 Add computed properties by specifying dependencies up front. Computed functions are memoized so they are exceedingly fast.
 
-```
+```js
 const config = {
   counter: {
     actions: {
@@ -97,7 +97,7 @@ console.log(store.state.counter.total); // 6
 ### Subscriptions
 Subscribe to nested properties by specifying their paths in dot notation. You can also subscribe to computed properties.
 
-```
+```js
 let count, total;
 
 const config = {
