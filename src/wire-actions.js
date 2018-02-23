@@ -23,16 +23,25 @@ const wireActions = (path, state, actions, subscriptions, computedDeps) => {
           const subscriptionsKeys = Object.keys(subscriptions || {});
 
           if (subscriptions && subscriptionsKeys.length > 0) {
-            const computedKeys = Object.keys(computedDeps || {});
+            const depsKeys = Object.keys(computedDeps || {});
             const dataKeys = Object.keys(data || {});
 
-            [
-              ...dataKeys,
-              ...computedKeys.filter(k => computedDeps[k].some(q => dataKeys.includes(q))),
-            ]
-              .filter(k => subscriptionsKeys.includes(k))
+            depsKeys
+              // Find dependencies of computed properties that have changed
+              // i.e. that are in 'data'.
+              .reduce((acc, cur) => {
+                if (
+                  !acc.includes(cur) && // don't repeat keys
+                  computedDeps[cur].some(dep => dataKeys.includes(dep))
+                ) {
+                  acc.push(cur);
+                }
+
+                return acc;
+              }, dataKeys)
+              .filter(subKey => subscriptionsKeys.includes(subKey))
               .forEach((subKey) => {
-                const fn = subscriptions[[...path, subKey].join('.')];
+                const fn = subscriptions[path.concat(subKey).join('.')];
 
                 if (fn) {
                   fn(data[subKey] || state[subKey]);

@@ -9,7 +9,7 @@ export default (obj, prop, deps, getter) => {
     get: () => {
       const depObjects = deps.map(dep => getState(dep.split('.'), obj));
 
-      const argString = JSON.stringify({ ...depObjects });
+      const argString = JSON.stringify(depObjects);
 
       if (cache[argString]) {
         return cache[argString];

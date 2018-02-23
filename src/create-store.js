@@ -8,35 +8,34 @@ function createStore(modules) {
     actions,
     state,
   } = Object.entries(modules || {})
-    .map(module => ({ name: module[0], module: module[1] }))
-    .filter(module => module.name !== '$root')
-    // map module state/actions to namespaced state/actions
-    // e.g. { counter: { actions, state } }
-    //   => { actions: { counter }, state: { counter } }
+    .filter(mod => mod[0] !== '$root')
     .reduce((acc, cur) => {
-      acc.state[cur.name] = cur.module.state;
+      const [name, mod] = cur;
 
-      Object.entries(cur.module.computed || [])
-        .map(computed => ({ name: computed[0], getter: computed[1] }))
-        .forEach((prop) => {
+      acc.state[name] = mod.state;
+
+      Object.entries(mod.computed || [])
+        .forEach((computed) => {
+          const [label, getter] = computed;
+
           createComputedProperty(
-            acc.state[cur.name],
-            prop.name,
-            prop.getter.slice(0, -1), // dependencies
-            prop.getter.slice(-1)[0], // getter function
+            acc.state[name],
+            label,
+            getter.slice(0, -1), // dependencies
+            getter.slice(-1)[0], // getter function
           );
 
-          acc.computed[cur.name] = {
-            [prop.name]: prop.getter.slice(0, -1), // dependencies
+          acc.computed[name] = {
+            [label]: getter.slice(0, -1), // dependencies array
           };
         });
 
-      acc.actions[cur.name] = wireActions(
+      acc.actions[name] = wireActions(
         [], // path
-        acc.state[cur.name], // state
-        cur.module.actions, // actions
-        cur.module.subscriptions, // subscriptions
-        acc.computed[cur.name], // computed
+        acc.state[name], // state
+        mod.actions, // actions
+        mod.subscriptions, // subscriptions
+        acc.computed[name], // computed
       );
 
       return acc;
