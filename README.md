@@ -83,9 +83,8 @@ const config = {
     computed: {
       total: {
         deps: ['count', 'initial'], // state dependencies local to this module
-        rootDeps: ['user.username'],
         // available params are: actions, state, rootActions, rootState
-        getter: ({ rootState, state }) => `${rootState.user.username}: ${state.count + state.initial}`,
+        getter: ({ state }) => state.count + state.initial,
     }
     state: {
       count: 0,
@@ -98,6 +97,33 @@ const app = createApp(config);
 app.actions.counter.up(1)
 
 console.log(app.state.counter.total); // 6
+```
+
+It's possible to access the state of other modules, by using `rootDeps` and `rootState`, like this:
+```js
+const config = {
+  counter: {
+    computed: {
+      userCount: {
+        deps: ['count'],
+        rootDeps: ['user.username'],
+        getter: ({ rootState, state }) => `${rootState.user.username}: ${state.count}`,
+    }
+    state: {
+      count: 0,
+    }
+  },
+  user: {
+    state: {
+      username: 'alice',
+    }
+  }
+};
+
+const app = createApp(config);
+app.actions.counter.up(1)
+
+console.log(app.state.counter.userCount); // alice: 1
 ```
 
 You don't have to return a value from a computed function, you can call another action, or do anything else async. So computed functions are also **subscriptions**:
