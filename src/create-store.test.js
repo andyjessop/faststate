@@ -13,7 +13,14 @@ const getMockConfig = () => ({
       up: value => ({ state }) => ({ count: state.count + value }),
     },
     computed: {
-      total: ['count', 'initial', state => (state.count + state.initial)],
+      total: {
+        deps: ['count', 'initial'],
+        rootDeps: ['user.username'],
+        getter: ({ state, rootState }) => {
+          debugger;
+          console.log(state.count, state.initial, rootState.user.username);
+        },
+      },
     },
     state: {
       count: 0,
@@ -23,9 +30,9 @@ const getMockConfig = () => ({
       },
     },
   },
-  $root: {
-    computed: {
-      rootTotal: ['counter.count', 'counter.initial', state => (state.counter.count + state.counter.initial)],
+  user: {
+    state: {
+      username: 'andyjessop',
     },
   },
 });
@@ -38,6 +45,7 @@ describe('createStore', () => {
   });
 
   test('should wire action to state', () => {
+    debugger;
     const store = createStore(mockConfig);
 
     store.actions.counter.up(1);
