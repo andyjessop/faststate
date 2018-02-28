@@ -1,6 +1,6 @@
 # FastState
 
-FastState is a small and fast reactive programming library for JavaScript apps. It maintains an up-to-date state, so when one bit of state changes, it automatically calculates and updates downstream state.
+FastState is a small, fast, and simple reactive programming library for JavaScript apps. It maintains an up-to-date state, so when one bit of state changes, it automatically calculates and updates downstream state.
 
 **Note: this library is currently in alpha and therefore the API is subject to breaking changes.**
 
@@ -8,6 +8,7 @@ Features:
 - **miniscule** (~200 lines of code)
 - **no dependencies**
 - **single atomic state object**
+- **simple, declarative configuration**
 - **modular**: all functionality added in modules to aid separation of concerns and portability
 - [**computed functions**](https://github.com/andyjessop/faststate#computed-functions)
 
