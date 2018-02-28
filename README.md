@@ -1,20 +1,24 @@
-# PicoStore
+# FastState
 
-PicoStore is a small and fast state management container for JavaScript apps.
+FastState is a small and fast reactive programming library for JavaScript apps. It maintains an up-to-date state, so when one bit of state changes, it automatically calculates and updates downstream state.
 
 **Note: this library is currently in alpha and therefore the API is subject to breaking changes.**
 
 Features:
-- **tiny** (<1KB minified)
+- **miniscule** (~200 lines of code)
 - **no dependencies**
 - **single atomic state object**
 - **modular**: all functionality added in modules to aid separation of concerns and portability
-- [**computed properties**](https://github.com/andyjessop/picostore#computed-properties)
-- [**subscribe**](https://github.com/andyjessop/picostore#subscriptions) to changes in specific properties in the state object
+- [**computed functions**](https://github.com/andyjessop/faststate#computed-functions)
+
+FastState is deliberately minimal, but very powerful, allowing you to use it as the core of a reactive JavaScript app. Computed functions are the beating heart of the library. With them, you can:
+- create computed properties that are added to the state
+- call actions as a result of state changes (subscriptions)
+- do anything else you want as a result of state changes, whether that be re-rendering or firing-off async actions.
 
 ### Installation
 ```
-$ npm install picostore --save
+$ npm install faststate --save
 ```
 
 ### Minimal example
@@ -70,18 +74,18 @@ console.log(1);
 // 2
 ```
 
-### Computed Properties
-Add computed properties by specifying dependencies up front. Computed functions are memoized so they are exceedingly fast.
+### Computed Functions
+Add computed functions by specifying dependencies up front. Computed functions are guaranteed to be up-to-date, so you can have other computed properties as dependencies too. FastState will keep make sure that the computed functions are executed in the correct order.
 
 ```js
 const config = {
   counter: {
-    actions: {
-      up: value => state => ({ count: state.count + value }),
-      down: value => state => ({ count: state.count - value }),
-    },
     computed: {
-      total: ['count', 'initial', (state) => state.count + state.initial],
+      total: {
+        deps: ['count', 'initial'], // state dependencies local to this module
+        rootDeps: ['user.username'],
+        // available params are: actions, state, rootActions, rootState
+        getter: ({ rootState, state }) => `${rootState.user.username}: ${state.count + state.initial}`,
     }
     state: {
       count: 0,
@@ -96,34 +100,27 @@ store.actions.counter.up(1)
 console.log(store.state.counter.total); // 6
 ```
 
-### Subscriptions
-Subscribe to nested properties by specifying their paths in dot notation. You can also subscribe to computed properties.
+You don't have to return a value from a computed function, you can call another action, or do anything else async. So computed functions are also **subscriptions**:
 
 ```js
-let count, total;
-
 const config = {
   counter: {
-    actions: {
-      up: value => state => ({ count: state.count + value }),
-    },
     computed: {
-      total: ['count', 'initial', (state) => state.count + state.initial],
+      total: {
+        deps: ['count'], // state dependencies local to this module
+        // available params are: actions, state, rootActions, rootState
+        getter: ({ actions, state }) => {
+          console.log(state.count);
+          actions.myOtherAction(state.count);
+        },
     }
     state: {
       count: 0,
       initial: 5,
-    },
-    subscriptions: {
-      count: (newVal) => { count = newVal; }
-      total: (newVal) => { total = newVal; } // subscribe to computed properties too
     }
   }
 };
 
 const store = createStore(config);
-
-store.actions.counter.up(1);
-
-console.log(count, total); // 1, 6
+store.actions.counter.up(1); // console logs: 1
 ```

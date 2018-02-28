@@ -1,7 +1,7 @@
 {
-  "name": "picostore",
-  "version": "0.4.3-alpha",
-  "description": "A tiny and fast state management container",
+  "name": "faststate",
+  "version": "0.4.4-alpha",
+  "description": "FastState is a small and fast reactive programming library for JavaScript apps",
   "main": "src/index.js",
   "scripts": {
     "test": "jest --config ./jest.config.js"
