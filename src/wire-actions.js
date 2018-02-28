@@ -14,6 +14,8 @@ const wireActions = (path, actions, state, rootActions, rootState, graph) => {
           const data = action(val)({
             actions,
             state: localState,
+            rootActions,
+            rootState,
           });
 
           if (!data) return;
@@ -30,12 +32,18 @@ const wireActions = (path, actions, state, rootActions, rootState, graph) => {
             }, {});
 
           getFnsToRun(graph.depChains, graph.resolvedDepGraph, graph.fns, rootData)
-            .forEach(fn => fn({
-              actions,
-              state: localState,
-              rootActions,
-              rootState,
-            }));
+            .forEach((fnObj) => {
+              const value = fnObj.fn({
+                actions,
+                state: localState,
+                rootActions,
+                rootState,
+              });
+
+              if (!value || value.then) return;
+
+              Object.assign(localState, { [fnObj.prop]: value });
+            });
         };
       } else {
         const nextPath = path.concat(key);

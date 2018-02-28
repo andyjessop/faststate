@@ -6,8 +6,8 @@ export default (computed, moduleName) => {
   Object.keys(computed)
     .forEach((prop) => {
       rootComputed[prop] = {
-        deps: computed[prop].rootDeps.concat(computed[prop].deps
-          .map(dep => joinPaths([moduleName], dep))),
+        deps: (computed[prop].rootDeps || [])
+          .concat((computed[prop].deps || []).map(dep => joinPaths([moduleName], dep))),
         getter: computed[prop].getter,
       };
     });

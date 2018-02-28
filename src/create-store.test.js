@@ -7,19 +7,29 @@ const getMockConfig = () => ({
         actions.up(1);
         resolve();
       }),
+      incTimesCounted: () => ({ state }) =>
+        ({ timesCounted: state.timesCounted ? state.timesCounted + 1 : 1 }),
+      setInitial: value => () => ({ initial: value }),
       subCounter: {
         up: value => ({ state }) => ({ subCount: state.subCount + value }),
       },
       up: value => ({ state }) => ({ count: state.count + value }),
     },
     computed: {
+      callAction: {
+        deps: ['count'],
+        getter: ({ actions }) => {
+          actions.incTimesCounted();
+        },
+      },
       total: {
         deps: ['count', 'initial'],
+        getter: ({ state }) => state.count + state.initial,
+      },
+      userTotal: {
+        deps: ['count', 'initial'],
         rootDeps: ['user.username'],
-        getter: ({ state, rootState }) => {
-          debugger;
-          console.log(state.count, state.initial, rootState.user.username);
-        },
+        getter: ({ state, rootState }) => `${rootState.user.username}: ${state.count + state.initial}`,
       },
     },
     state: {
@@ -32,7 +42,7 @@ const getMockConfig = () => ({
   },
   user: {
     state: {
-      username: 'andyjessop',
+      username: 'alice',
     },
   },
 });
@@ -45,7 +55,6 @@ describe('createStore', () => {
   });
 
   test('should wire action to state', () => {
-    debugger;
     const store = createStore(mockConfig);
 
     store.actions.counter.up(1);
@@ -78,39 +87,27 @@ describe('createStore', () => {
     expect(store.state.counter.total).toEqual(6);
   });
 
-  test('should create a subscription', () => {
-    let output;
-
-    const store = createStore({
-      ...mockConfig,
-      counter: {
-        ...mockConfig.counter,
-        subscriptions: {
-          count: (newVal) => { output = newVal; },
-        },
-      },
-    });
+  test('should compute total', () => {
+    const store = createStore(mockConfig);
 
     store.actions.counter.up(1);
+    expect(store.state.counter.total).toEqual(6);
 
-    expect(output).toEqual(1);
+    store.actions.counter.setInitial(6);
+    expect(store.state.counter.total).toEqual(7);
   });
 
-  test('should subscribe to a computed property', () => {
-    let output;
-
-    const store = createStore({
-      ...mockConfig,
-      counter: {
-        ...mockConfig.counter,
-        subscriptions: {
-          total: (newVal) => { output = newVal; },
-        },
-      },
-    });
+  test('rootDeps and rootState should work for computed getter', () => {
+    const store = createStore(mockConfig);
 
     store.actions.counter.up(1);
+    expect(store.state.counter.userTotal).toEqual('alice: 6');
+  });
 
-    expect(output).toEqual(6);
+  test('should call action from computed getter', () => {
+    const store = createStore(mockConfig);
+
+    store.actions.counter.up(1);
+    expect(store.state.counter.timesCounted).toEqual(1);
   });
 });
