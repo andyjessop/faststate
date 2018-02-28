@@ -23,7 +23,7 @@ $ npm install faststate --save
 
 ### Minimal example
 ```js
-import createStore from 'picostore';
+import createApp from 'faststate';
 
 const config = {
   counter: {
@@ -37,10 +37,10 @@ const config = {
   }
 };
 
-const store = createStore(config);
+const app = createApp(config);
 
-store.actions.counter.up(1);
-console.log(store.state.count); // 1
+app.actions.counter.up(1);
+console.log(app.state.count); // 1
 
 ```
 
@@ -64,9 +64,9 @@ const config = {
   }
 }
 
-const store = createStore(config);
+const app = createApp(config);
 
-store.actions.getCount();
+app.actions.getCount();
 console.log(1);
 
 // outputs:
@@ -94,10 +94,10 @@ const config = {
   }
 };
 
-const store = createStore(config);
-store.actions.counter.up(1)
+const app = createApp(config);
+app.actions.counter.up(1)
 
-console.log(store.state.counter.total); // 6
+console.log(app.state.counter.total); // 6
 ```
 
 You don't have to return a value from a computed function, you can call another action, or do anything else async. So computed functions are also **subscriptions**:
@@ -121,6 +121,6 @@ const config = {
   }
 };
 
-const store = createStore(config);
-store.actions.counter.up(1); // console logs: 1
+const app = createApp(config);
+app.actions.counter.up(1); // console logs: 1
 ```

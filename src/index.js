@@ -1,5 +1,5 @@
-import createStore from './create-store';
+import createApp from './create-app';
 
 export {
-  createStore, // eslint-disable-line
+  createApp, // eslint-disable-line
 };

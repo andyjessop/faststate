@@ -1,4 +1,4 @@
-import createStore from './create-store';
+import createApp from './create-app';
 
 const getMockConfig = () => ({
   counter: {
@@ -49,65 +49,65 @@ const getMockConfig = () => ({
 
 let mockConfig = getMockConfig;
 
-describe('createStore', () => {
+describe('createApp', () => {
   beforeEach(() => {
     mockConfig = getMockConfig();
   });
 
   test('should wire action to state', () => {
-    const store = createStore(mockConfig);
+    const app = createApp(mockConfig);
 
-    store.actions.counter.up(1);
+    app.actions.counter.up(1);
 
-    expect(store.state.counter.count).toEqual(1);
+    expect(app.state.counter.count).toEqual(1);
   });
 
   test('should wire nested action to nested state', () => {
-    const store = createStore(mockConfig);
+    const app = createApp(mockConfig);
 
-    store.actions.counter.subCounter.up(1);
+    app.actions.counter.subCounter.up(1);
 
-    expect(store.state.counter.subCounter.subCount).toEqual(1);
+    expect(app.state.counter.subCounter.subCount).toEqual(1);
   });
 
   test('should call async action', (done) => {
-    const store = createStore(mockConfig);
+    const app = createApp(mockConfig);
 
-    return store.actions.counter.get().then(() => {
-      expect(store.state.counter.count).toEqual(1);
+    return app.actions.counter.get().then(() => {
+      expect(app.state.counter.count).toEqual(1);
       done();
     });
   });
 
   test('should create a computed property', () => {
-    const store = createStore(mockConfig);
+    const app = createApp(mockConfig);
 
-    store.actions.counter.up(1);
+    app.actions.counter.up(1);
 
-    expect(store.state.counter.total).toEqual(6);
+    expect(app.state.counter.total).toEqual(6);
   });
 
   test('should compute total', () => {
-    const store = createStore(mockConfig);
+    const app = createApp(mockConfig);
 
-    store.actions.counter.up(1);
-    expect(store.state.counter.total).toEqual(6);
+    app.actions.counter.up(1);
+    expect(app.state.counter.total).toEqual(6);
 
-    store.actions.counter.setInitial(6);
-    expect(store.state.counter.total).toEqual(7);
+    app.actions.counter.setInitial(6);
+    expect(app.state.counter.total).toEqual(7);
   });
 
   test('rootDeps and rootState should work for computed getter', () => {
-    const store = createStore(mockConfig);
+    const app = createApp(mockConfig);
 
-    store.actions.counter.up(1);
-    expect(store.state.counter.userTotal).toEqual('alice: 6');
+    app.actions.counter.up(1);
+    expect(app.state.counter.userTotal).toEqual('alice: 6');
   });
 
   test('should call action from computed getter', () => {
-    const store = createStore(mockConfig);
+    const app = createApp(mockConfig);
 
-    store.actions.counter.up(1);
-    expect(store.state.counter.timesCounted).toEqual(1);
+    app.actions.counter.up(1);
+    expect(app.state.counter.timesCounted).toEqual(1);
   });
 });
